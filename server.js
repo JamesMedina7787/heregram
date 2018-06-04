@@ -1,9 +1,9 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var morgan = require('morgan');
-var User = require('./models/user');
+const express = require('express');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const morgan = require('morgan');
+const User = require('./models/user');
 const ejs = require('ejs');
 const multer = require('multer');
 const Sequelize = require('sequelize');
@@ -22,7 +22,7 @@ db.sequelize.sync().then(function() {
     console.log(err, 'Something went wrong with the Database Update!');
 });
 // invoke an instance of express application.
-var app = express();
+const app = express();
 
 // set our application port
 app.set('port', 3000);
@@ -58,7 +58,7 @@ app.use((req, res, next) => {
 });
 
 // middleware function to check for logged-in users
-var sessionChecker = (req, res, next) => {
+const sessionChecker = (req, res, next) => {
     if (req.session.user && req.cookies.user_sid) {
         res.redirect('/dashboard');
     } else {
@@ -70,114 +70,6 @@ var sessionChecker = (req, res, next) => {
 app.get('/', sessionChecker, (req, res) => {
     res.redirect('/login');
 });
-
-// multer related
-const storage = multer.diskStorage({
-    destination: './public/uploads',
-    filename: (req, file, cb) => {
-        // fieldname is name="photo", - "154461".jpg. naming convention has to be unique. 
-        // Date.now() would be different for everyone.
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
-    }
-})
-
-// upload process definition
-const upload = multer({
-    storage: storage
-}).single('image');
-
-const PicUserComment = db.sequelize.define('picusercomment', {
-    // these columns wlll be auto-created by sequelize
-    pic_id: Sequelize.INTEGER,
-    usercomment_id: Sequelize.INTEGER
-})
-const UserPic = db.sequelize.define('userpic', {
-    user_id: Sequelize.INTEGER,
-    pic_id: Sequelize.INTEGER
-})
-
-// define Pic
-const Pic = db.sequelize.define('pic', {
-    name: Sequelize.STRING,
-    description: Sequelize.STRING,
-    image: Sequelize.STRING
-})
-
-const UserComment = db.sequelize.define('usercomment', {
-    content: Sequelize.STRING
-})
-
-Pic.belongsToMany(UserComment, {
-    through: 'picusercomment'
-});
-UserComment.belongsToMany(Pic, { through: 'picusercomment' });
-
-User.belongsToMany(Pic, {
-    through: 'userpics'
-});
-Pic.belongsToMany(User, {
-    through: 'userpics'
-});
-
-// get route for multer pics
-let name;
-let description;
-
-//get route
-app.get('/heregram', (req, res) => {
-
-    Pic.findAll().then((data) => {
-        const links = data.map(function(dataValues) {
-            return [dataValues.url, dataValues.id];
-        })
-
-        res.render('pages/heregram', { imageUrls: links });
-    })
-})
-
-app.get('/heregram', (req, res) => {
-    Pic.findAll({ include: [{ User }] }).then(function(data) {
-        const imageDataArr = data.map(function(dataValues) {
-            let links = {};
-            // links.username = dataValues.user.username;
-            links.id = dataValues.id;
-            links.url = dataValues.url;
-            return links;
-        })
-        return imageDataArr;
-    }).then((imageDataArr) => {
-        res.render('pages/heregram', {
-            imageDataArr
-        })
-    })
-})
-
-
-//upload route
-app.post('/upload', (req, res) => {
-    upload(req, res, (err) => {
-        if (err) {
-            console.log(err);
-        }
-        console.log(req.body);
-        console.log(req.file);
-
-        Pic.create({
-                userId: req.user.id,
-                url: req.file.location,
-                name: req.body.name,
-                description: req.body.description
-            })
-            .then(() => {
-                return res.redirect('/heregram')
-            })
-    })
-
-})
-
-app.get('/heregram', (req, res) => {
-    res.render('pages/heregram');
-})
 
 // route for user signup
 app.route('/signup')
@@ -238,6 +130,121 @@ app.get('/logout', (req, res) => {
         res.redirect('/login');
     }
 });
+
+// multer related
+const storage = multer.diskStorage({
+    destination: './public/uploads',
+    filename: (req, file, cb) => {
+        // fieldname is name="photo", - "154461".jpg. naming convention has to be unique. 
+        // Date.now() would be different for everyone.
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+})
+
+// upload process definition
+const upload = multer({
+    storage: storage
+}).single('image');
+
+const PicUserComment = db.sequelize.define('picusercomment', {
+    // these columns wlll be auto-created by sequelize
+    pic_id: Sequelize.INTEGER,
+    usercomment_id: Sequelize.INTEGER
+})
+const UserPic = db.sequelize.define('userpic', {
+    user_id: Sequelize.INTEGER,
+    pic_id: Sequelize.INTEGER
+})
+
+// define Pic
+const Pic = db.sequelize.define('pic', {
+    name: Sequelize.STRING,
+    description: Sequelize.STRING,
+    image: Sequelize.STRING
+})
+
+const UserComment = db.sequelize.define('usercomment', {
+    content: Sequelize.STRING
+})
+
+Pic.belongsToMany(UserComment, {
+    through: 'picusercomment'
+});
+UserComment.belongsToMany(Pic, {
+    through: 'picusercomment'
+});
+
+User.belongsToMany(Pic, {
+    through: 'userpics'
+});
+Pic.belongsToMany(User, {
+    through: 'userpics'
+});
+
+// get route for multer pics
+let name;
+let description;
+
+//get heregram route
+app.get('/heregram', (req, res) => {
+
+    Pic.findAll().then((data) => {
+        const links = data.map(function(dataValues) {
+            return [dataValues.url, dataValues.id];
+        })
+
+        res.render('pages/heregram', {
+            imageUrls: links
+        });
+    })
+})
+
+app.get('/heregram', (req, res) => {
+    Pic.findAll({
+        include: [{
+            User
+        }]
+    }).then(function(data) {
+        const imageDataArr = data.map(function(dataValues) {
+            let links = {};
+            // links.username = dataValues.user.username;
+            links.id = dataValues.id;
+            links.url = dataValues.url;
+            return links;
+        })
+        return imageDataArr;
+    }).then((imageDataArr) => {
+        res.render('pages/heregram', {
+            imageDataArr
+        })
+    })
+})
+
+//upload route
+app.post('/upload', (req, res) => {
+    upload(req, res, (err) => {
+        if (err) {
+            console.log(err);
+        }
+        console.log(req.body);
+        console.log(req.file);
+
+        Pic.create({
+                userId: req.user.id,
+                url: req.file.location,
+                name: req.body.name,
+                description: req.body.description
+            })
+            .then(() => {
+                return res.redirect('/heregram')
+            })
+    })
+
+})
+
+app.get('/heregram', (req, res) => {
+    res.render('pages/heregram');
+})
 
 // route for handling 404 requests(unavailable routes)
 app.use(function(req, res, next) {
