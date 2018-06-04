@@ -25,11 +25,9 @@ Most hiring managers who are interviewed say they expect their Junior Web Develo
 
 + Multer
 
-+ PassportJS
++ PassportJS (We went with Express Session and BCrypt instead)
 
 + Amazon S3 (Optional)
-
-+ Getting Started
 
 ### Coming up with a unique name for our app:
 
