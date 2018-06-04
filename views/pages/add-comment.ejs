@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include ../partials/head %>
+</head>
+
+<body class="Site">
+    <div class="Site-content">
+        <div class="add-container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+        <h1>Add Comment</h1>
+        <form method="POST" action="/add-comment">
+            <fieldset>
+                <label for="">Comment:</label>
+                <input name="content" type="text">
+            </fieldset>
+            <fieldset>
+                <button id="add" type="submit">
+                    <i class="material-icons">add</i>
+                </button>
+            </fieldset>
+        </form>
+        </div>
+    </div>
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="Site">
+    <header>
+        <% include ../partials/header %>
+    </header>
+    <div class="Site-content">
+        <div class="search">
+            <input type="text" name="search" placeholder="search" autofocus>
+            <i class="material-icons">search</i>
+        </div>
+            <div class="heregram-container">
+        
+           <% for (var i = imageDataArr.length - 1; i >= 0; i--) { %>
+			<div class="imageContainer">
+          		
+          		<img id='<%=imageDataArr[i].id%> src=<%= imageDataArr[i].url%>" alt="Image'>
+			</div>
+		<% } %>
+            <footer>
+            <% include ../partials/footer %>
+        </footer>
+</body>
+</html>
